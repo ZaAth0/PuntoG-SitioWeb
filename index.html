@@ -1453,6 +1453,15 @@ class ProductSearch {
         this.setupEventListeners();
     }
 
+    // NUEVA FUNCIÓN: Cerrar resultados de búsqueda
+closeSearchResults() {
+    this.hideResults();
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = ''; // Opcional: limpiar el input
+    }
+}
+
     loadProducts() {
         // Obtener todos los productos de la página
         const dishBoxes = document.querySelectorAll('.dish-box-wp');
@@ -1482,6 +1491,24 @@ class ProductSearch {
             'dinner': 'Bebidas'
         };
         return categoryMap[category] || 'Todos';
+    }
+
+    // NUEVA FUNCIÓN: Extraer precio igual que en el carrito
+    extractPrice(priceText) {
+        console.log('Buscador - Texto del precio a extraer:', priceText);
+        
+        // Método simple: extraer todos los números y tomar el resultado
+        const numbers = priceText.match(/\d+/g);
+        if (numbers && numbers.length > 0) {
+            // Unir todos los números encontrados (para manejar "50.000" -> "50000")
+            const priceString = numbers.join('');
+            const price = parseInt(priceString);
+            console.log('Buscador - Precio extraído:', price);
+            return price;
+        }
+        
+        console.log('Buscador - No se pudo extraer precio, usando 0');
+        return 0;
     }
 
     setupEventListeners() {
@@ -1575,6 +1602,8 @@ class ProductSearch {
         } else if (results.length > 0) {
             resultsContainer.innerHTML = results.map(product => {
                 const highlightedName = this.highlightText(product.name, searchTerm);
+                // USAR EXTRACTPRICE PARA OBTENER EL VALOR NUMÉRICO CORRECTO
+                const priceValue = this.extractPrice(product.price);
                 return `
                     <div class="search-result-item" data-product-id="${product.category}">
                         <img src="${product.image}" alt="${product.name}" class="search-result-img">
@@ -1586,7 +1615,7 @@ class ProductSearch {
                         <div class="search-result-actions">
                             <button class="add-to-cart-search-btn" 
                                     data-product-name="${product.name}"
-                                    data-product-price="${product.price.replace('Rs. ', '').replace('$', '').trim()}"
+                                     data-product-price="${priceValue}"
                                     data-product-image="${product.image}"
                                     data-product-category="${product.category}"
                                     title="Añadir al carrito">
@@ -1821,6 +1850,13 @@ class ShoppingCart {
         this.updateCartUI();
     }
 
+    // NUEVA FUNCIÓN: Extraer precio en guaraníes
+    extractPrice(priceText) {
+        // Limpiar el texto y convertir a número (para guaraníes)
+        let cleanPrice = priceText.replace(/[^\d,]/g, '').replace(',', '');
+        return parseInt(cleanPrice) || 0;
+    }
+
     setupEventListeners() {
         // Botones "Añadir al carrito"
         document.addEventListener('click', (e) => {
@@ -1838,6 +1874,9 @@ class ShoppingCart {
         // Toggle del dropdown del carrito
         document.querySelector('.header-cart').addEventListener('click', (e) => {
             e.stopPropagation();
+            if (window.productSearch) {
+            window.productSearch.closeSearchResults();
+        }
             document.querySelector('.cart-dropdown').classList.toggle('active');
         });
 
@@ -1860,8 +1899,12 @@ class ShoppingCart {
     addToCart(dishBox) {
         const dishId = dishBox.getAttribute('data-cat') + '-' + Date.now();
         const dishName = dishBox.querySelector('.h3-title').textContent;
-        const dishPrice = parseInt(dishBox.querySelector('.dist-bottom-row b').textContent.replace('Rs. ', '').replace('$', '').trim());
+        const dishPriceText = dishBox.querySelector('.dist-bottom-row b').textContent;
+        // USAR EXTRACTPRICE EN LUGAR DE REPLACE SIMPLE
+        const dishPrice = this.extractPrice(dishPriceText);
         const dishImage = dishBox.querySelector('.dist-img img').src;
+
+        console.log('Precio extraído:', dishPrice, 'de texto:', dishPriceText); // Para debug
 
         const existingItem = this.cart.find(item => item.name === dishName);
 
@@ -1984,7 +2027,7 @@ class ShoppingCart {
         }
 
         // Actualizar total
-        totalAmount.textContent = this.getTotal();
+        totalAmount.textContent = this.getTotal().toLocaleString('es-PY');
     }
 
     showNotification(message) {
@@ -2009,7 +2052,7 @@ class ShoppingCart {
     checkoutWithWhatsApp() {
         if (this.cart.length === 0) return;
 
-        const phoneNumber = "+595971763496"; // Número de WhatsApp de Punto G
+        const phoneNumber = "+595972983177"; // Número de WhatsApp de Punto G
         let message = "¡Hola! Quiero hacer un pedido de *Punto G* \n\n";
         message += "* MI PEDIDO:*\n";
 
@@ -2017,10 +2060,10 @@ class ShoppingCart {
             const subtotal = item.price * item.quantity;
             message += `\n${index + 1}. ${item.name}`;
             message += `\n   Cantidad: ${item.quantity}`;
-            message += `\n   Subtotal: $${subtotal}`;
+             message += `\n   Subtotal: ₲ ${subtotal.toLocaleString('es-PY')}`;
         });
 
-        message += `\n\n *TOTAL A PAGAR: $${this.getTotal()}*`;
+         message += `\n\n *TOTAL A PAGAR: ₲ ${this.getTotal().toLocaleString('es-PY')}*`;
         message += `\n\n *MI INFORMACIÓN:*`;
         message += `\n Nombre: `;
         message += `\n Dirección: `;
