@@ -21,50 +21,79 @@
 
 <body class="body-fixed">
     <!-- start of header  -->
-    <header class="site-header">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-2">
-                    <div class="header-logo">
-                        <a href="index.html">
-                            <img src="logo.png" width="160" height="36" alt="Logo">
-                        </a>
-                    </div>
+<header class="site-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-2">
+                <div class="header-logo">
+                    <a href="index.html">
+                        <img src="logo.png" width="160" height="36" alt="Logo">
+                    </a>
                 </div>
-                <div class="col-lg-10">
-                    <div class="main-navigation">
-                        <button class="menu-toggle"><span></span><span></span></button>
-                        <nav class="header-menu">
-                            <ul class="menu food-nav-menu">
-                                <li><a href="#home">Inicio</a></li>
-                                <li><a href="#about">Nosotros</a></li>
-                                <li><a href="#menu">Tentaciones</a></li>
-                                <li><a href="#gallery">Galería</a></li>
-                                <li><a href="#blog">Confesiones</a></li>
-                                <li><a href="#contact">Contacto</a></li>
-                            </ul>
-                        </nav>
-                        <div class="header-right">
-                           <!-- <form action="#" class="header-search-form for-des">
-                                <input type="search" class="form-input" placeholder="Search Here...">
-                                <button type="submit">
-                                    <i class="uil uil-search"></i>
-                                </button>
-                            </form>
+            </div>
+            <div class="col-lg-10">
+                <div class="main-navigation d-flex align-items-center justify-content-between">
+                    <nav class="header-menu">
+                        <ul class="menu food-nav-menu d-flex align-items-center mb-0">
+                            <li class="nav-item"><a href="#home" class="nav-link">Inicio</a></li>
+                            <li class="nav-item"><a href="#about" class="nav-link">Nosotros</a></li>
+                            <li class="nav-item"><a href="#menu" class="nav-link">Tentaciones</a></li>
+                            <li class="nav-item"><a href="#gallery" class="nav-link">Galería</a></li>
+                            <li class="nav-item"><a href="#blog" class="nav-link">Confesiones</a></li>
+                            <li class="nav-item"><a href="#contact" class="nav-link">Contacto</a></li>
+                        </ul>
+                    </nav>
+                    
+                    <div class="header-right d-flex align-items-center">
+                        <form action="#" class="header-search-form for-des" id="search-form">
+                            <input type="search" class="form-input" placeholder="Buscar productos..." id="search-input" autocomplete="off">
+                            <button type="submit">
+                                <i class="uil uil-search"></i>
+                            </button>
+                        </form>
+                        
+                        <div class="header-cart-wrapper me-3">
                             <a href="javascript:void(0)" class="header-btn header-cart">
                                 <i class="uil uil-shopping-bag"></i>
-                                <span class="cart-number">3</span>
+                                <span class="cart-number">0</span>
                             </a>
-                            <a href="javascript:void(0)" class="header-btn">
-                                <i class="uil uil-user-md"></i>
-                            </a> -->
+                            <div class="cart-dropdown">
+                                <div class="cart-header-top">
+                                    <h4>Tu Carrito</h4>
+                                    <button class="clear-cart-header-btn" id="clear-cart" title="Limpiar carrito">
+                                        <i class="uil uil-trash-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="cart-items">
+                                    <!-- Los items del carrito se agregarán aquí dinámicamente -->
+                                </div>
+                               <div class="cart-footer">
+                                    <div class="cart-total">
+                                        <span>Total: $<span class="total-amount">0</span></span>
+                                    </div>
+                                <div class="cart-actions">
+                                    <button class="sec-btn clear-cart-btn" id="clear-cart">
+                                        <i class="uil uil-trash-alt"></i> Limpiar Carrito
+                                    </button>
+                                    <button class="sec-btn whatsapp-btn" id="checkout-whatsapp">
+                                        <i class="uil uil-whatsapp"></i> Pedir por WhatsApp
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <!-- 
+                        <a href="javascript:void(0)" class="header-btn">
+                            <i class="uil uil-user-md"></i>
+                        </a> 
+                        -->
                     </div>
                 </div>
             </div>
         </div>
-    </header>
-    <!-- header ends  -->
+    </div>
+</header>
+<!-- header ends  -->
 
     <div id="viewport">
         <div id="js-scroll-content">
@@ -111,7 +140,7 @@
             </section>
 
 
-            <!--<section class="brands-sec">
+            <section class="brands-sec">
                 <div class="container">
                     <div class="row">
                         <div class="col-lg-12">
@@ -138,7 +167,7 @@
                         </div>
                     </div>
                 </div>
-            </section>-->
+            </section>
 
             <section class="about-sec section" id="about">
                 <div class="container">
@@ -1409,6 +1438,622 @@
     <script src="assets/js/smooth-scroll.js"></script>
     <!-- custom js  -->
     <script src="main.js"></script>
+
+
+<!-- Script del buscador -->
+<script>
+class ProductSearch {
+    constructor() {
+        this.products = [];
+        this.init();
+    }
+
+    init() {
+        this.loadProducts();
+        this.setupEventListeners();
+    }
+
+    loadProducts() {
+        // Obtener todos los productos de la página
+        const dishBoxes = document.querySelectorAll('.dish-box-wp');
+        this.products = Array.from(dishBoxes).map(dishBox => {
+            const category = dishBox.getAttribute('data-cat');
+            const name = dishBox.querySelector('.h3-title').textContent;
+            const price = dishBox.querySelector('.dist-bottom-row b').textContent;
+            const image = dishBox.querySelector('.dist-img img').src;
+            const description = dishBox.querySelector('.dish-title p').textContent;
+            
+            return {
+                element: dishBox,
+                category: category,
+                name: name,
+                price: price,
+                image: image,
+                description: description,
+                categoryName: this.getCategoryName(category)
+            };
+        });
+    }
+
+    getCategoryName(category) {
+        const categoryMap = {
+            'breakfast': 'Salados',
+            'lunch': 'Dulces', 
+            'dinner': 'Bebidas'
+        };
+        return categoryMap[category] || 'Todos';
+    }
+
+    setupEventListeners() {
+        const searchInput = document.getElementById('search-input');
+        const searchForm = document.getElementById('search-form');
+
+        // Búsqueda en tiempo real con debounce
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.handleSearch(e.target.value);
+            }, 300);
+        });
+
+        // Prevenir envío del formulario
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleSearch(searchInput.value);
+        });
+
+        // Cerrar resultados al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-search-form')) {
+                this.hideResults();
+            }
+        });
+
+        // Manejar tecla Escape
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.hideResults();
+                searchInput.blur();
+            }
+        });
+    }
+
+    handleSearch(searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        
+        if (term.length === 0) {
+            this.hideResults();
+            this.showAllProducts();
+            return;
+        }
+
+        if (term.length < 2) {
+            this.hideResults();
+            return;
+        }
+
+        const results = this.searchProducts(term);
+        this.displayResults(results, term);
+        this.filterProducts(results);
+    }
+
+    searchProducts(term) {
+        return this.products.filter(product => {
+            const searchableText = `
+                ${product.name.toLowerCase()}
+                ${product.description.toLowerCase()}
+                ${product.categoryName.toLowerCase()}
+                ${product.category.toLowerCase()}
+            `;
+            
+            return searchableText.includes(term);
+        });
+    }
+
+    displayResults(results, searchTerm) {
+        let resultsContainer = document.getElementById('search-results');
+        
+        if (!resultsContainer) {
+            resultsContainer = document.createElement('div');
+            resultsContainer.id = 'search-results';
+            resultsContainer.className = 'search-results';
+            document.querySelector('.header-search-form').appendChild(resultsContainer);
+        }
+
+        // Limpiar resultados anteriores
+        resultsContainer.innerHTML = '';
+
+        if (results.length === 0 && searchTerm.length >= 2) {
+            resultsContainer.innerHTML = `
+                <div class="no-results">
+                    <i class="uil uil-search"></i>
+                    <p>No se encontraron productos para "${searchTerm}"</p>
+                    <small>Intenta con otros términos</small>
+                </div>
+            `;
+        } else if (results.length > 0) {
+            resultsContainer.innerHTML = results.map(product => {
+                const highlightedName = this.highlightText(product.name, searchTerm);
+                return `
+                    <div class="search-result-item" data-product-id="${product.category}">
+                        <img src="${product.image}" alt="${product.name}" class="search-result-img">
+                        <div class="search-result-info">
+                            <div class="search-result-name">${highlightedName}</div>
+                            <div class="search-result-price">${product.price}</div>
+                            <span class="search-result-category">${product.categoryName}</span>
+                        </div>
+                        <div class="search-result-actions">
+                            <button class="add-to-cart-search-btn" 
+                                    data-product-name="${product.name}"
+                                    data-product-price="${product.price.replace('Rs. ', '').replace('$', '').trim()}"
+                                    data-product-image="${product.image}"
+                                    data-product-category="${product.category}"
+                                    title="Añadir al carrito">
+                                <i class="uil uil-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Agregar event listeners para navegación
+            resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    // No navegar si se hizo click en el botón de añadir
+                    if (!e.target.closest('.add-to-cart-search-btn')) {
+                        const category = item.getAttribute('data-product-id');
+                        this.navigateToProduct(category);
+                        this.hideResults();
+                        document.getElementById('search-input').value = '';
+                    }
+                });
+            });
+
+            // Agregar event listeners para los botones de añadir al carrito
+            this.setupSearchAddToCartButtons();
+        }
+
+        // Mostrar/ocultar resultados
+        if (searchTerm.length >= 2) {
+            resultsContainer.classList.add('active');
+        } else {
+            resultsContainer.classList.remove('active');
+        }
+    }
+
+    // Nueva función para manejar los botones de añadir desde la búsqueda
+    setupSearchAddToCartButtons() {
+        const addButtons = document.querySelectorAll('.add-to-cart-search-btn');
+        
+        addButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevenir que se active el click del item
+                
+                const productName = button.getAttribute('data-product-name');
+                const productPrice = parseInt(button.getAttribute('data-product-price'));
+                const productImage = button.getAttribute('data-product-image');
+                const productCategory = button.getAttribute('data-product-category');
+                
+                // Añadir al carrito
+                this.addProductToCartFromSearch({
+                    name: productName,
+                    price: productPrice,
+                    image: productImage,
+                    category: productCategory
+                }, button);
+            });
+        });
+    }
+
+    // Función para añadir productos desde la búsqueda
+    addProductToCartFromSearch(productData, button) {
+        if (window.cart) {
+            // Crear un ID único para el producto
+            const productId = productData.category + '-' + Date.now();
+            
+            // Buscar si el producto ya existe en el carrito
+            const existingItem = window.cart.cart.find(item => item.name === productData.name);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                window.cart.cart.push({
+                    id: productId,
+                    name: productData.name,
+                    price: productData.price,
+                    image: productData.image,
+                    quantity: 1
+                });
+            }
+            
+            // Actualizar el carrito
+            window.cart.saveCart();
+            window.cart.updateCartUI();
+            
+            // Mostrar feedback visual en el botón
+            this.showAddToCartFeedback(button);
+            
+            // Mostrar notificación
+            window.cart.showNotification(`${productData.name} añadido al carrito`);
+        }
+    }
+
+    // Función para mostrar feedback visual al añadir - CORREGIDA
+    showAddToCartFeedback(button) {
+        const originalHTML = button.innerHTML;
+        
+        // Cambiar a estado "añadido" - aplicando todos los estilos necesarios
+        button.classList.add('added');
+        button.innerHTML = '<i class="uil uil-check"></i>';
+        
+        // Deshabilitar interacciones temporalmente
+        button.style.pointerEvents = 'none';
+        button.disabled = true;
+        
+        // Forzar la aplicación de estilos para prevenir cambios de layout
+        button.style.transform = 'none';
+        button.style.margin = '0';
+        button.style.border = 'none';
+        button.style.boxShadow = 'none';
+        button.style.width = '26px';
+        button.style.height = '26px';
+        
+        // Restaurar después de 1.5 segundos
+        setTimeout(() => {
+            button.classList.remove('added');
+            button.innerHTML = originalHTML;
+            button.style.pointerEvents = 'auto';
+            button.disabled = false;
+            
+            // Remover estilos forzados
+            button.style.transform = '';
+            button.style.margin = '';
+            button.style.border = '';
+            button.style.boxShadow = '';
+            button.style.width = '';
+            button.style.height = '';
+        }, 1500);
+    }
+
+    highlightText(text, term) {
+        const regex = new RegExp(`(${term})`, 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    hideResults() {
+        const resultsContainer = document.querySelector('.search-results');
+        if (resultsContainer) {
+            resultsContainer.classList.remove('active');
+        }
+    }
+
+    filterProducts(results) {
+        // Ocultar todos los productos primero
+        this.products.forEach(product => {
+            product.element.style.display = 'none';
+        });
+
+        // Mostrar solo los productos que coinciden
+        results.forEach(result => {
+            result.element.style.display = 'block';
+        });
+
+        // Mostrar mensaje si no hay resultados en la sección principal
+        this.handleNoResults(results.length === 0);
+    }
+
+    showAllProducts() {
+        this.products.forEach(product => {
+            product.element.style.display = 'block';
+        });
+        this.hideNoResultsMessage();
+    }
+
+    handleNoResults(noResults) {
+        let noResultsMessage = document.getElementById('no-search-results');
+        
+        if (noResults && !noResultsMessage) {
+            noResultsMessage = document.createElement('div');
+            noResultsMessage.id = 'no-search-results';
+            noResultsMessage.className = 'col-lg-12 text-center';
+            noResultsMessage.innerHTML = `
+                <div class="no-results" style="padding: 40px 20px;">
+                    <i class="uil uil-search" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <h3>No se encontraron productos</h3>
+                    <p>Intenta con otros términos de búsqueda</p>
+                </div>
+            `;
+            document.getElementById('menu-dish').appendChild(noResultsMessage);
+        } else if (!noResults && noResultsMessage) {
+            noResultsMessage.remove();
+        }
+    }
+
+    hideNoResultsMessage() {
+        const noResultsMessage = document.getElementById('no-search-results');
+        if (noResultsMessage) {
+            noResultsMessage.remove();
+        }
+    }
+
+    navigateToProduct(category) {
+        // Activar el filtro correspondiente
+        const filterButton = document.querySelector(`.filter[data-filter=".${category}"]`);
+        if (filterButton) {
+            filterButton.click();
+            
+            // Pequeño delay para que se aplique el filtro
+            setTimeout(() => {
+                // Scroll suave a la sección de menú
+                const menuSection = document.getElementById('menu');
+                if (menuSection) {
+                    menuSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }, 100);
+        }
+    }
+}
+
+// Inicializar el buscador cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    window.productSearch = new ProductSearch();
+});
+</script>
+<!-- FIN SCRIPT DEL BUSCADOR -->
+
+
+    <!-- Script del carrito -->
+     <script>
+// Sistema de Carrito de Compras
+class ShoppingCart {
+    constructor() {
+        this.cart = [];
+        this.init();
+    }
+
+    init() {
+        this.loadCart();
+        this.setupEventListeners();
+        this.updateCartUI();
+    }
+
+    setupEventListeners() {
+        // Botones "Añadir al carrito"
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.dish-add-btn')) {
+                const dishBox = e.target.closest('.dish-box-wp');
+                this.addToCart(dishBox);
+            }
+        });
+
+        // Botón "Limpiar Carrito"
+        document.getElementById('clear-cart').addEventListener('click', () => {
+            this.clearCart();
+        });
+
+        // Toggle del dropdown del carrito
+        document.querySelector('.header-cart').addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelector('.cart-dropdown').classList.toggle('active');
+        });
+
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', () => {
+            document.querySelector('.cart-dropdown').classList.remove('active');
+        });
+
+        // Prevenir que el dropdown se cierre al hacer click dentro
+        document.querySelector('.cart-dropdown').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Botón de WhatsApp
+        document.getElementById('checkout-whatsapp').addEventListener('click', () => {
+            this.checkoutWithWhatsApp();
+        });
+    }
+
+    addToCart(dishBox) {
+        const dishId = dishBox.getAttribute('data-cat') + '-' + Date.now();
+        const dishName = dishBox.querySelector('.h3-title').textContent;
+        const dishPrice = parseInt(dishBox.querySelector('.dist-bottom-row b').textContent.replace('Rs. ', '').replace('$', '').trim());
+        const dishImage = dishBox.querySelector('.dist-img img').src;
+
+        const existingItem = this.cart.find(item => item.name === dishName);
+
+        if (existingItem) {
+            existingItem.quantity++;
+        } else {
+            this.cart.push({
+                id: dishId,
+                name: dishName,
+                price: dishPrice,
+                image: dishImage,
+                quantity: 1
+            });
+        }
+
+        this.saveCart();
+        this.updateCartUI();
+        this.showNotification(`${dishName} añadido al carrito`);
+    }
+
+    removeFromCart(itemId) {
+        this.cart = this.cart.filter(item => item.id !== itemId);
+        this.saveCart();
+        this.updateCartUI();
+    }
+
+    updateQuantity(itemId, change) {
+        const item = this.cart.find(item => item.id === itemId);
+        if (item) {
+            item.quantity += change;
+            if (item.quantity <= 0) {
+                this.removeFromCart(itemId);
+            } else {
+                this.saveCart();
+                this.updateCartUI();
+            }
+        }
+    }
+
+    // NUEVA FUNCIÓN: Limpiar todo el carrito
+    clearCart() {
+        if (this.cart.length === 0) {
+            this.showNotification('El carrito ya está vacío');
+            return;
+        }
+
+        // Confirmación antes de limpiar
+        if (confirm('¿Estás seguro de que quieres vaciar el carrito? Se eliminarán todos los productos.')) {
+            this.cart = [];
+            this.saveCart();
+            this.updateCartUI();
+            this.showNotification('Carrito limpiado correctamente');
+            
+            // Cerrar el dropdown después de limpiar
+            setTimeout(() => {
+                document.querySelector('.cart-dropdown').classList.remove('active');
+            }, 1500);
+        }
+    }
+
+    getTotal() {
+        return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    }
+
+    getTotalItems() {
+        return this.cart.reduce((total, item) => total + item.quantity, 0);
+    }
+
+    saveCart() {
+        localStorage.setItem('puntoG-cart', JSON.stringify(this.cart));
+    }
+
+    loadCart() {
+        const savedCart = localStorage.getItem('puntoG-cart');
+        if (savedCart) {
+            this.cart = JSON.parse(savedCart);
+        }
+    }
+
+    updateCartUI() {
+        const cartNumber = document.querySelector('.cart-number');
+        const cartItems = document.querySelector('.cart-items');
+        const totalAmount = document.querySelector('.total-amount');
+        const whatsappBtn = document.getElementById('checkout-whatsapp');
+        const clearCartBtn = document.getElementById('clear-cart');
+
+        // Actualizar número del carrito
+        cartNumber.textContent = this.getTotalItems();
+
+        // Actualizar items del carrito
+        if (this.cart.length === 0) {
+            cartItems.innerHTML = `
+                <div class="empty-cart">
+                    <i class="uil uil-shopping-bag"></i>
+                    <p>Tu carrito está vacío</p>
+                </div>
+            `;
+            whatsappBtn.disabled = true;
+            clearCartBtn.disabled = true;
+        } else {
+            cartItems.innerHTML = this.cart.map(item => `
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">$${item.price}</div>
+                    </div>
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn" onclick="cart.updateQuantity('${item.id}', -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn" onclick="cart.updateQuantity('${item.id}', 1)">+</button>
+                    </div>
+                    <button class="remove-item" onclick="cart.removeFromCart('${item.id}')">
+                        <i class="uil uil-trash-alt"></i>
+                    </button>
+                </div>
+            `).join('');
+            whatsappBtn.disabled = false;
+            clearCartBtn.disabled = false;
+        }
+
+        // Actualizar total
+        totalAmount.textContent = this.getTotal();
+    }
+
+    showNotification(message) {
+        let notification = document.querySelector('.cart-notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.className = 'cart-notification';
+            document.body.appendChild(notification);
+        }
+
+        notification.innerHTML = `
+            <i class="uil uil-check-circle"></i>
+            ${message}
+        `;
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    checkoutWithWhatsApp() {
+        if (this.cart.length === 0) return;
+
+        const phoneNumber = "+595971763496"; // Número de WhatsApp de Punto G
+        let message = "¡Hola! Quiero hacer un pedido de *Punto G* \n\n";
+        message += "* MI PEDIDO:*\n";
+
+        this.cart.forEach((item, index) => {
+            const subtotal = item.price * item.quantity;
+            message += `\n${index + 1}. ${item.name}`;
+            message += `\n   Cantidad: ${item.quantity}`;
+            message += `\n   Subtotal: $${subtotal}`;
+        });
+
+        message += `\n\n *TOTAL A PAGAR: $${this.getTotal()}*`;
+        message += `\n\n *MI INFORMACIÓN:*`;
+        message += `\n Nombre: `;
+        message += `\n Dirección: `;
+        message += `\n Teléfono: `;
+        message += `\n Notas adicionales: `;
+        message += `\n\n¡Gracias! `;
+
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+
+        window.open(whatsappURL, '_blank');
+        this.showNotification('¡Redirigiendo a WhatsApp!');
+        
+        // Opcional: Descomenta estas líneas si quieres limpiar el carrito después del pedido
+        // this.cart = [];
+        // this.saveCart();
+        // this.updateCartUI();
+    }
+}
+
+// Inicializar el carrito cuando se carga la página
+document.addEventListener('DOMContentLoaded', () => {
+    window.cart = new ShoppingCart();
+    window.search = new ProductSearch();
+});
+
+// Agregar el elemento de notificación al DOM
+const notificationElement = document.createElement('div');
+notificationElement.className = 'cart-notification';
+document.body.appendChild(notificationElement);
+</script>
+
+<!-- Fin script del carrito -->
 
 </body>
 
