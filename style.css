@@ -533,7 +533,6 @@ img {
 .h1-title {
     font-size: 90px;
     line-height: 108px;
-    text-transform: capitalize;
     margin-bottom: 25px;
     font-weight: 900;
 }
@@ -1137,14 +1136,38 @@ p {
 .testimonials-img {
     position: relative;
 }
-
 .testimonials-img img {
     position: absolute;
     top: 60px;
     right: 30px;
     width: calc(100% + 5vw);
     max-width: initial;
+    animation: biani 4.5s linear infinite alternate;
+    box-shadow: 
+        0 0px 20px rgba(36, 39, 37, 0.3), 
+        0 0 15px rgba(255, 130, 67, 0.4), 
+        0 0 30px rgba(255, 255, 255, 0.6); 
+    border-radius: 48% 52% 57% 43% / 34% 44% 56% 66%;
+    transition: all 0.5s ease;
 }
+
+
+.testimonials-img img:hover {
+    box-shadow: 
+        0 0px 25px rgba(36, 39, 37, 0.4),
+        0 0 20px rgba(255, 130, 67, 0.6),
+        0 0 40px rgba(255, 255, 255, 0.8);
+    transform: scale(1.02);
+}
+
+.testimonials-img img {
+    position: absolute;
+    top: 60px;
+    right: 8px;
+    width: calc(100% + 5vw);
+    max-width: initial;
+}
+
 
 .testimonials-box {
     display: flow-root;
